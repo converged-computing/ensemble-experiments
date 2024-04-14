@@ -1,0 +1,1473 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/component: manager
+    app.kubernetes.io/created-by: ensemble-operator
+    app.kubernetes.io/instance: system
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: namespace
+    app.kubernetes.io/part-of: ensemble-operator
+    control-plane: controller-manager
+  name: ensemble-operator-system
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: ensembles.ensemble.flux-framework.org
+spec:
+  group: ensemble.flux-framework.org
+  names:
+    kind: Ensemble
+    listKind: EnsembleList
+    plural: ensembles
+    singular: ensemble
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Ensemble is the Schema for the ensembles API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: EnsembleSpec defines the desired state of Ensemble
+            properties:
+              algorithm:
+                description: Global algorithmt to use, unless a member has a specific
+                  algorithm
+                properties:
+                  name:
+                    default: workload-demand
+                    type: string
+                  options:
+                    additionalProperties:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      x-kubernetes-int-or-string: true
+                    description: Options for the algorithm
+                    type: object
+                type: object
+              checkSeconds:
+                default: 10
+                description: After ensemble creation, how long should we reconcile
+                  (in other words, how many seconds between checks?) Defaults to 10
+                  seconds
+                format: int32
+                type: integer
+              members:
+                description: Foo is an example field of Ensemble. Edit ensemble_types.go
+                  to remove/update
+                items:
+                  description: A member of the ensemble that will run for some number
+                    of times, optionally with a maximum or minumum
+                  properties:
+                    algorithm:
+                      description: Member specific algorithm to use If not defined,
+                        defaults to workload-demand
+                      properties:
+                        name:
+                          default: workload-demand
+                          type: string
+                        options:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            x-kubernetes-int-or-string: true
+                          description: Options for the algorithm
+                          type: object
+                      type: object
+                    jobs:
+                      description: A member is required to define one or more jobs
+                        These are passed into status for further updating Jobs
+                      items:
+                        description: Job defines a unit of work for the ensemble to
+                          munch on. Munch munch munch.
+                        properties:
+                          command:
+                            description: Command given to flux
+                            type: string
+                          count:
+                            default: 1
+                            description: Number of jobs to run This can be set to
+                              0 depending on the algorithm E.g., some algorithms decide
+                              on the number to submit
+                            format: int32
+                            type: integer
+                          duration:
+                            description: Duration of jobs Value of 0 (default) indicates
+                              no limit
+                            format: int32
+                            type: integer
+                          name:
+                            description: Name to identify the job group
+                            type: string
+                          nodes:
+                            default: 1
+                            description: Number of nodes for job
+                            format: int32
+                            type: integer
+                          tasks:
+                            description: Number of tasks for the job, defaults to
+                              1 Node count cannot be greater than task count
+                            format: int32
+                            type: integer
+                          workdir:
+                            description: Working directory for job group (if unset,
+                              uses container default)
+                            type: string
+                        required:
+                        - command
+                        - name
+                        type: object
+                      type: array
+                    minicluster:
+                      description: MiniCluster is of a type MiniCluster, the base
+                        unit of an ensemble. We do this because we install a flux
+                        metrics API within each MiniCluster to manage it TODO where
+                        should the user define the size? Here or with the member?
+                      properties:
+                        apiVersion:
+                          description: 'APIVersion defines the versioned schema of
+                            this representation of an object. Servers should convert
+                            recognized schemas to the latest internal value, and may
+                            reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+                          type: string
+                        kind:
+                          description: 'Kind is a string value representing the REST
+                            resource this object represents. Servers may infer this
+                            from the endpoint the client submits requests to. Cannot
+                            be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+                          type: string
+                        metadata:
+                          type: object
+                        spec:
+                          description: MiniCluster is an HPC cluster in Kubernetes
+                            you can control Either to submit a single job (and go
+                            away) or for a persistent single- or multi- user cluster
+                          properties:
+                            archive:
+                              description: Archive to load or save
+                              properties:
+                                path:
+                                  description: Save or load from this directory path
+                                  type: string
+                              type: object
+                            cleanup:
+                              default: false
+                              description: Cleanup the pods and storage when the index
+                                broker pod is complete
+                              type: boolean
+                            containers:
+                              description: Containers is one or more containers to
+                                be created in a pod. There should only be one container
+                                to run flux with runFlux
+                              items:
+                                properties:
+                                  batch:
+                                    description: Indicate that the command is a batch
+                                      job that will be written to a file to submit
+                                    type: boolean
+                                  batchRaw:
+                                    description: Don't wrap batch commands in flux
+                                      submit (provide custom logic myself)
+                                    type: boolean
+                                  command:
+                                    description: Single user executable to provide
+                                      to flux start
+                                    type: string
+                                  commands:
+                                    description: More specific or detailed commands
+                                      for just workers/broker
+                                    properties:
+                                      brokerPre:
+                                        description: A single command for only the
+                                          broker to run
+                                        type: string
+                                      init:
+                                        description: init command is run before anything
+                                        type: string
+                                      post:
+                                        description: post command is run in the entrypoint
+                                          when the broker exits / finishes
+                                        type: string
+                                      pre:
+                                        description: pre command is run after global
+                                          PreCommand, after asFlux is set (can override)
+                                        type: string
+                                      prefix:
+                                        description: Prefix to flux start / submit
+                                          / broker Typically used for a wrapper command
+                                          to mount, etc.
+                                        type: string
+                                      script:
+                                        description: Custom script for submit (e.g.,
+                                          multiple lines)
+                                        type: string
+                                      servicePre:
+                                        description: A command only for service start.sh
+                                          tor run
+                                        type: string
+                                      workerPre:
+                                        description: A command only for workers to
+                                          run
+                                        type: string
+                                    type: object
+                                  environment:
+                                    additionalProperties:
+                                      type: string
+                                    description: Key/value pairs for the environment
+                                    type: object
+                                  image:
+                                    default: ghcr.io/rse-ops/accounting:app-latest
+                                    description: Container image must contain flux
+                                      and flux-sched install
+                                    type: string
+                                  imagePullSecret:
+                                    description: Allow the user to pull authenticated
+                                      images By default no secret is selected. Setting
+                                      this with the name of an already existing imagePullSecret
+                                      will specify that secret in the pod spec.
+                                    type: string
+                                  launcher:
+                                    description: Indicate that the command is a launcher
+                                      that will ask for its own jobs (and provided
+                                      directly to flux start)
+                                    type: boolean
+                                  lifeCycle:
+                                    description: Lifecycle can handle post start commands,
+                                      etc.
+                                    properties:
+                                      postStartExec:
+                                        type: string
+                                      preStopExec:
+                                        type: string
+                                    type: object
+                                  logs:
+                                    description: Log output directory
+                                    type: string
+                                  name:
+                                    description: Container name is only required for
+                                      non flux runners
+                                    type: string
+                                  noWrapEntrypoint:
+                                    description: Do not wrap the entrypoint to wait
+                                      for flux, add to path, etc?
+                                    type: boolean
+                                  ports:
+                                    description: Ports to be exposed to other containers
+                                      in the cluster We take a single list of integers
+                                      and map to the same
+                                    items:
+                                      format: int32
+                                      type: integer
+                                    type: array
+                                    x-kubernetes-list-type: atomic
+                                  pullAlways:
+                                    default: false
+                                    description: Allow the user to dictate pulling
+                                      By default we pull if not present. Setting this
+                                      to true will indicate to pull always
+                                    type: boolean
+                                  resources:
+                                    description: Resources include limits and requests
+                                    properties:
+                                      limits:
+                                        additionalProperties:
+                                          anyOf:
+                                          - type: integer
+                                          - type: string
+                                          x-kubernetes-int-or-string: true
+                                        type: object
+                                      requests:
+                                        additionalProperties:
+                                          anyOf:
+                                          - type: integer
+                                          - type: string
+                                          x-kubernetes-int-or-string: true
+                                        type: object
+                                    type: object
+                                  runFlux:
+                                    description: Application container intended to
+                                      run flux (broker)
+                                    type: boolean
+                                  secrets:
+                                    additionalProperties:
+                                      description: Secret describes a secret from
+                                        the environment. The envar name should be
+                                        the key of the top level map.
+                                      properties:
+                                        key:
+                                          description: Key under secretKeyRef->Key
+                                          type: string
+                                        name:
+                                          description: Name under secretKeyRef->Name
+                                          type: string
+                                      required:
+                                      - key
+                                      - name
+                                      type: object
+                                    description: Secrets that will be added to the
+                                      environment The user is expected to create their
+                                      own secrets for the operator to find
+                                    type: object
+                                  securityContext:
+                                    description: Security Context https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+                                    properties:
+                                      addCapabilities:
+                                        description: Capabilities to add
+                                        items:
+                                          type: string
+                                        type: array
+                                        x-kubernetes-list-type: atomic
+                                      privileged:
+                                        description: Privileged container
+                                        type: boolean
+                                    type: object
+                                  volumes:
+                                    additionalProperties:
+                                      properties:
+                                        claimName:
+                                          description: Claim name if the existing
+                                            volume is a PVC
+                                          type: string
+                                        configMapName:
+                                          description: Config map name if the existing
+                                            volume is a config map You should also
+                                            define items if you are using this
+                                          type: string
+                                        hostPath:
+                                          description: An existing hostPath to bind
+                                            to path
+                                          type: string
+                                        items:
+                                          additionalProperties:
+                                            type: string
+                                          description: Items (key and paths) for the
+                                            config map
+                                          type: object
+                                        path:
+                                          description: Path and claim name are always
+                                            required if a secret isn't defined
+                                          type: string
+                                        readOnly:
+                                          default: false
+                                          type: boolean
+                                        secretName:
+                                          description: An existing secret
+                                          type: string
+                                      type: object
+                                    description: Existing volumes that can be mounted
+                                    type: object
+                                  workingDir:
+                                    description: Working directory to run command
+                                      from
+                                    type: string
+                                type: object
+                              type: array
+                              x-kubernetes-list-type: atomic
+                            deadlineSeconds:
+                              default: 31500000
+                              description: Should the job be limited to a particular
+                                number of seconds? Approximately one year. This cannot
+                                be zero or job won't start
+                              format: int64
+                              type: integer
+                            flux:
+                              description: Flux options for the broker, shared across
+                                cluster
+                              properties:
+                                arch:
+                                  description: Change the arch string - determines
+                                    the binaries that are downloaded to run the entrypoint
+                                  type: string
+                                brokerConfig:
+                                  description: Optionally provide a manually created
+                                    broker config this is intended for bursting to
+                                    remote clusters
+                                  type: string
+                                bursting:
+                                  description: Bursting - one or more external clusters
+                                    to burst to We assume a single, central MiniCluster
+                                    with an ipaddress that all connect to.
+                                  properties:
+                                    clusters:
+                                      description: External clusters to burst to.
+                                        Each external cluster must share the same
+                                        listing to align ranks
+                                      items:
+                                        properties:
+                                          name:
+                                            description: The hostnames for the bursted
+                                              clusters If set, the user is responsible
+                                              for ensuring uniqueness. The operator
+                                              will set to burst-N
+                                            type: string
+                                          size:
+                                            description: Size of bursted cluster.
+                                              Defaults to same size as local minicluster
+                                              if not set
+                                            format: int32
+                                            type: integer
+                                        type: object
+                                      type: array
+                                      x-kubernetes-list-type: atomic
+                                    hostlist:
+                                      description: Hostlist is a custom hostlist for
+                                        the broker.toml that includes the local plus
+                                        bursted cluster. This is typically used for
+                                        bursting to another resource type, where we
+                                        can predict the hostnames but they don't follow
+                                        the same convention as the Flux Operator
+                                      type: string
+                                    leadBroker:
+                                      description: The lead broker ip address to join
+                                        to. E.g., if we burst to cluster 2, this is
+                                        the address to connect to cluster 1 For the
+                                        first cluster, this should not be defined
+                                      properties:
+                                        address:
+                                          description: Lead broker address (ip or
+                                            hostname)
+                                          type: string
+                                        name:
+                                          description: We need the name of the lead
+                                            job to assemble the hostnames
+                                          type: string
+                                        port:
+                                          default: 8050
+                                          description: Lead broker port - should only
+                                            be used for external cluster
+                                          format: int32
+                                          type: integer
+                                        size:
+                                          description: Lead broker size
+                                          format: int32
+                                          type: integer
+                                      required:
+                                      - address
+                                      - name
+                                      - size
+                                      type: object
+                                  type: object
+                                completeWorkers:
+                                  description: Complete workers when they fail This
+                                    is ideal if you don't want them to restart
+                                  type: boolean
+                                connectTimeout:
+                                  default: 5s
+                                  description: Single user executable to provide to
+                                    flux start
+                                  type: string
+                                container:
+                                  description: Container base for flux
+                                  properties:
+                                    disable:
+                                      default: false
+                                      description: Disable the sidecar container,
+                                        assuming that the main application container
+                                        has flux
+                                      type: boolean
+                                    image:
+                                      default: ghcr.io/converged-computing/flux-view-rocky:tag-9
+                                      type: string
+                                    imagePullSecret:
+                                      description: Allow the user to pull authenticated
+                                        images By default no secret is selected. Setting
+                                        this with the name of an already existing
+                                        imagePullSecret will specify that secret in
+                                        the pod spec.
+                                      type: string
+                                    mountPath:
+                                      default: /mnt/flux
+                                      description: Mount path for flux to be at (will
+                                        be added to path)
+                                      type: string
+                                    name:
+                                      default: flux-view
+                                      description: Container name is only required
+                                        for non flux runners
+                                      type: string
+                                    pullAlways:
+                                      default: false
+                                      description: Allow the user to dictate pulling
+                                        By default we pull if not present. Setting
+                                        this to true will indicate to pull always
+                                      type: boolean
+                                    pythonPath:
+                                      description: Customize python path for flux
+                                      type: string
+                                    resources:
+                                      description: Resources include limits and requests
+                                        These must be defined for cpu and memory for
+                                        the QoS to be Guaranteed
+                                      properties:
+                                        limits:
+                                          additionalProperties:
+                                            anyOf:
+                                            - type: integer
+                                            - type: string
+                                            x-kubernetes-int-or-string: true
+                                          type: object
+                                        requests:
+                                          additionalProperties:
+                                            anyOf:
+                                            - type: integer
+                                            - type: string
+                                            x-kubernetes-int-or-string: true
+                                          type: object
+                                      type: object
+                                    workingDir:
+                                      description: Working directory to run command
+                                        from
+                                      type: string
+                                  type: object
+                                curveCert:
+                                  description: Optionally provide an already existing
+                                    curve certificate This is not recommended in favor
+                                    of providing the secret name as curveCertSecret,
+                                    below
+                                  type: string
+                                logLevel:
+                                  default: 6
+                                  description: Log level to use for flux logging (only
+                                    in non TestMode)
+                                  format: int32
+                                  type: integer
+                                minimalService:
+                                  description: Only expose the broker service (to
+                                    reduce load on DNS)
+                                  type: boolean
+                                mungeSecret:
+                                  description: Expect a secret (named according to
+                                    this string) for a munge key. This is intended
+                                    for bursting. Assumed to be at /etc/munge/munge.key
+                                    This is binary data.
+                                  type: string
+                                noWaitSocket:
+                                  description: Do not wait for the socket
+                                  type: boolean
+                                optionFlags:
+                                  description: Flux option flags, usually provided
+                                    with -o optional - if needed, default option flags
+                                    for the server These can also be set in the user
+                                    interface to override here. This is only valid
+                                    for a FluxRunner "runFlux" true
+                                  type: string
+                                scheduler:
+                                  description: Custom attributes for the fluxion scheduler
+                                  properties:
+                                    queuePolicy:
+                                      description: Scheduler queue policy, defaults
+                                        to "fcfs" can also be "easy"
+                                      type: string
+                                  type: object
+                                submitCommand:
+                                  description: Modify flux submit to be something
+                                    else
+                                  type: string
+                                wrap:
+                                  description: Commands for flux start --wrap
+                                  type: string
+                              type: object
+                            interactive:
+                              default: false
+                              description: Run a single-user, interactive minicluster
+                              type: boolean
+                            jobLabels:
+                              additionalProperties:
+                                type: string
+                              description: Labels for the job
+                              type: object
+                            logging:
+                              description: Logging modes determine the output you
+                                see in the job log
+                              properties:
+                                debug:
+                                  default: false
+                                  description: Debug mode adds extra verbosity to
+                                    Flux
+                                  type: boolean
+                                quiet:
+                                  default: false
+                                  description: Quiet mode silences all output so the
+                                    job only shows the test running
+                                  type: boolean
+                                strict:
+                                  default: false
+                                  description: Strict mode ensures any failure will
+                                    not continue in the job entrypoint
+                                  type: boolean
+                                timed:
+                                  default: false
+                                  description: Timed mode adds timing to Flux commands
+                                  type: boolean
+                                zeromq:
+                                  default: false
+                                  description: Enable Zeromq logging
+                                  type: boolean
+                              type: object
+                            maxSize:
+                              description: MaxSize (maximum number of pods to allow
+                                scaling to)
+                              format: int32
+                              type: integer
+                            minSize:
+                              description: MinSize (minimum number of pods that must
+                                be up for Flux) Note that this option does not edit
+                                the number of tasks, so a job could run with fewer
+                                (and then not start)
+                              format: int32
+                              type: integer
+                            network:
+                              description: A spec for exposing or defining the cluster
+                                headless service
+                              properties:
+                                disableAffinity:
+                                  description: Disable affinity rules that guarantee
+                                    one network address / node
+                                  type: boolean
+                                headlessName:
+                                  default: flux-service
+                                  description: Name for cluster headless service
+                                  type: string
+                              type: object
+                            pod:
+                              description: Pod spec details
+                              properties:
+                                annotations:
+                                  additionalProperties:
+                                    type: string
+                                  description: Annotations for each pod
+                                  type: object
+                                labels:
+                                  additionalProperties:
+                                    type: string
+                                  description: Labels for each pod
+                                  type: object
+                                nodeSelector:
+                                  additionalProperties:
+                                    type: string
+                                  description: NodeSelectors for a pod
+                                  type: object
+                                resources:
+                                  additionalProperties:
+                                    anyOf:
+                                    - type: integer
+                                    - type: string
+                                    x-kubernetes-int-or-string: true
+                                  description: Resources include limits and requests
+                                  type: object
+                                schedulerName:
+                                  description: Scheduler name for the pod
+                                  type: string
+                                serviceAccountName:
+                                  description: Service account name for the pod
+                                  type: string
+                              type: object
+                            services:
+                              description: Services are one or more service containers
+                                to bring up alongside the MiniCluster.
+                              items:
+                                properties:
+                                  batch:
+                                    description: Indicate that the command is a batch
+                                      job that will be written to a file to submit
+                                    type: boolean
+                                  batchRaw:
+                                    description: Don't wrap batch commands in flux
+                                      submit (provide custom logic myself)
+                                    type: boolean
+                                  command:
+                                    description: Single user executable to provide
+                                      to flux start
+                                    type: string
+                                  commands:
+                                    description: More specific or detailed commands
+                                      for just workers/broker
+                                    properties:
+                                      brokerPre:
+                                        description: A single command for only the
+                                          broker to run
+                                        type: string
+                                      init:
+                                        description: init command is run before anything
+                                        type: string
+                                      post:
+                                        description: post command is run in the entrypoint
+                                          when the broker exits / finishes
+                                        type: string
+                                      pre:
+                                        description: pre command is run after global
+                                          PreCommand, after asFlux is set (can override)
+                                        type: string
+                                      prefix:
+                                        description: Prefix to flux start / submit
+                                          / broker Typically used for a wrapper command
+                                          to mount, etc.
+                                        type: string
+                                      script:
+                                        description: Custom script for submit (e.g.,
+                                          multiple lines)
+                                        type: string
+                                      servicePre:
+                                        description: A command only for service start.sh
+                                          tor run
+                                        type: string
+                                      workerPre:
+                                        description: A command only for workers to
+                                          run
+                                        type: string
+                                    type: object
+                                  environment:
+                                    additionalProperties:
+                                      type: string
+                                    description: Key/value pairs for the environment
+                                    type: object
+                                  image:
+                                    default: ghcr.io/rse-ops/accounting:app-latest
+                                    description: Container image must contain flux
+                                      and flux-sched install
+                                    type: string
+                                  imagePullSecret:
+                                    description: Allow the user to pull authenticated
+                                      images By default no secret is selected. Setting
+                                      this with the name of an already existing imagePullSecret
+                                      will specify that secret in the pod spec.
+                                    type: string
+                                  launcher:
+                                    description: Indicate that the command is a launcher
+                                      that will ask for its own jobs (and provided
+                                      directly to flux start)
+                                    type: boolean
+                                  lifeCycle:
+                                    description: Lifecycle can handle post start commands,
+                                      etc.
+                                    properties:
+                                      postStartExec:
+                                        type: string
+                                      preStopExec:
+                                        type: string
+                                    type: object
+                                  logs:
+                                    description: Log output directory
+                                    type: string
+                                  name:
+                                    description: Container name is only required for
+                                      non flux runners
+                                    type: string
+                                  noWrapEntrypoint:
+                                    description: Do not wrap the entrypoint to wait
+                                      for flux, add to path, etc?
+                                    type: boolean
+                                  ports:
+                                    description: Ports to be exposed to other containers
+                                      in the cluster We take a single list of integers
+                                      and map to the same
+                                    items:
+                                      format: int32
+                                      type: integer
+                                    type: array
+                                    x-kubernetes-list-type: atomic
+                                  pullAlways:
+                                    default: false
+                                    description: Allow the user to dictate pulling
+                                      By default we pull if not present. Setting this
+                                      to true will indicate to pull always
+                                    type: boolean
+                                  resources:
+                                    description: Resources include limits and requests
+                                    properties:
+                                      limits:
+                                        additionalProperties:
+                                          anyOf:
+                                          - type: integer
+                                          - type: string
+                                          x-kubernetes-int-or-string: true
+                                        type: object
+                                      requests:
+                                        additionalProperties:
+                                          anyOf:
+                                          - type: integer
+                                          - type: string
+                                          x-kubernetes-int-or-string: true
+                                        type: object
+                                    type: object
+                                  runFlux:
+                                    description: Application container intended to
+                                      run flux (broker)
+                                    type: boolean
+                                  secrets:
+                                    additionalProperties:
+                                      description: Secret describes a secret from
+                                        the environment. The envar name should be
+                                        the key of the top level map.
+                                      properties:
+                                        key:
+                                          description: Key under secretKeyRef->Key
+                                          type: string
+                                        name:
+                                          description: Name under secretKeyRef->Name
+                                          type: string
+                                      required:
+                                      - key
+                                      - name
+                                      type: object
+                                    description: Secrets that will be added to the
+                                      environment The user is expected to create their
+                                      own secrets for the operator to find
+                                    type: object
+                                  securityContext:
+                                    description: Security Context https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+                                    properties:
+                                      addCapabilities:
+                                        description: Capabilities to add
+                                        items:
+                                          type: string
+                                        type: array
+                                        x-kubernetes-list-type: atomic
+                                      privileged:
+                                        description: Privileged container
+                                        type: boolean
+                                    type: object
+                                  volumes:
+                                    additionalProperties:
+                                      properties:
+                                        claimName:
+                                          description: Claim name if the existing
+                                            volume is a PVC
+                                          type: string
+                                        configMapName:
+                                          description: Config map name if the existing
+                                            volume is a config map You should also
+                                            define items if you are using this
+                                          type: string
+                                        hostPath:
+                                          description: An existing hostPath to bind
+                                            to path
+                                          type: string
+                                        items:
+                                          additionalProperties:
+                                            type: string
+                                          description: Items (key and paths) for the
+                                            config map
+                                          type: object
+                                        path:
+                                          description: Path and claim name are always
+                                            required if a secret isn't defined
+                                          type: string
+                                        readOnly:
+                                          default: false
+                                          type: boolean
+                                        secretName:
+                                          description: An existing secret
+                                          type: string
+                                      type: object
+                                    description: Existing volumes that can be mounted
+                                    type: object
+                                  workingDir:
+                                    description: Working directory to run command
+                                      from
+                                    type: string
+                                type: object
+                              type: array
+                              x-kubernetes-list-type: atomic
+                            shareProcessNamespace:
+                              description: Share process namespace?
+                              type: boolean
+                            size:
+                              default: 1
+                              description: Size (number of job pods to run, size of
+                                minicluster in pods) This is also the minimum number
+                                required to start Flux
+                              format: int32
+                              type: integer
+                            tasks:
+                              default: 1
+                              description: Total number of CPUs being run across entire
+                                cluster
+                              format: int32
+                              type: integer
+                          required:
+                          - containers
+                          type: object
+                        status:
+                          description: MiniClusterStatus defines the observed state
+                            of Flux
+                          properties:
+                            conditions:
+                              description: conditions hold the latest Flux Job and
+                                MiniCluster states
+                              items:
+                                description: "Condition contains details for one aspect
+                                  of the current state of this API Resource. --- This
+                                  struct is intended for direct use as an array at
+                                  the field path .status.conditions.  For example,
+                                  \n type FooStatus struct{ // Represents the observations
+                                  of a foo's current state. // Known .status.conditions.type
+                                  are: \"Available\", \"Progressing\", and \"Degraded\"
+                                  // +patchMergeKey=type // +patchStrategy=merge //
+                                  +listType=map // +listMapKey=type Conditions []metav1.Condition
+                                  `json:\"conditions,omitempty\" patchStrategy:\"merge\"
+                                  patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
+                                  \n // other fields }"
+                                properties:
+                                  lastTransitionTime:
+                                    description: lastTransitionTime is the last time
+                                      the condition transitioned from one status to
+                                      another. This should be when the underlying
+                                      condition changed.  If that is not known, then
+                                      using the time when the API field changed is
+                                      acceptable.
+                                    format: date-time
+                                    type: string
+                                  message:
+                                    description: message is a human readable message
+                                      indicating details about the transition. This
+                                      may be an empty string.
+                                    maxLength: 32768
+                                    type: string
+                                  observedGeneration:
+                                    description: observedGeneration represents the
+                                      .metadata.generation that the condition was
+                                      set based upon. For instance, if .metadata.generation
+                                      is currently 12, but the .status.conditions[x].observedGeneration
+                                      is 9, the condition is out of date with respect
+                                      to the current state of the instance.
+                                    format: int64
+                                    minimum: 0
+                                    type: integer
+                                  reason:
+                                    description: reason contains a programmatic identifier
+                                      indicating the reason for the condition's last
+                                      transition. Producers of specific condition
+                                      types may define expected values and meanings
+                                      for this field, and whether the values are considered
+                                      a guaranteed API. The value should be a CamelCase
+                                      string. This field may not be empty.
+                                    maxLength: 1024
+                                    minLength: 1
+                                    pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                                    type: string
+                                  status:
+                                    description: status of the condition, one of True,
+                                      False, Unknown.
+                                    enum:
+                                    - "True"
+                                    - "False"
+                                    - Unknown
+                                    type: string
+                                  type:
+                                    description: type of condition in CamelCase or
+                                      in foo.example.com/CamelCase. --- Many .condition.type
+                                      values are consistent across resources like
+                                      Available, but because arbitrary conditions
+                                      can be useful (see .node.status.conditions),
+                                      the ability to deconflict is important. The
+                                      regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                                    maxLength: 316
+                                    pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                                    type: string
+                                required:
+                                - lastTransitionTime
+                                - message
+                                - reason
+                                - status
+                                - type
+                                type: object
+                              type: array
+                              x-kubernetes-list-type: atomic
+                            jobid:
+                              description: The Jobid is set internally to associate
+                                to a miniCluster This isn't currently in use, we only
+                                have one!
+                              type: string
+                            maximumSize:
+                              description: We keep the original size of the MiniCluster
+                                request as this is the absolute maximum
+                              format: int32
+                              type: integer
+                            selector:
+                              type: string
+                            size:
+                              description: These are for the sub-resource scale functionality
+                              format: int32
+                              type: integer
+                          required:
+                          - jobid
+                          - maximumSize
+                          - selector
+                          - size
+                          type: object
+                      type: object
+                    sidecar:
+                      description: Definition and customization of the sidecar
+                      properties:
+                        image:
+                          default: ghcr.io/converged-computing/ensemble-operator-api:rockylinux9
+                          description: Baseimage for the sidecar that will monitor
+                            the queue. Ensure that the operating systems match!
+                          type: string
+                        port:
+                          default: "50051"
+                          type: string
+                        pullAlways:
+                          description: Always pull the sidecar container (useful for
+                            development)
+                          type: boolean
+                        workers:
+                          default: 10
+                          format: int32
+                          type: integer
+                      required:
+                      - port
+                      - workers
+                      type: object
+                  required:
+                  - jobs
+                  type: object
+                type: array
+            required:
+            - checkSeconds
+            - members
+            type: object
+          status:
+            description: EnsembleStatus defines the observed state of Ensemble
+            properties:
+              jobs:
+                additionalProperties:
+                  items:
+                    description: Job defines a unit of work for the ensemble to munch
+                      on. Munch munch munch.
+                    properties:
+                      command:
+                        description: Command given to flux
+                        type: string
+                      count:
+                        default: 1
+                        description: Number of jobs to run This can be set to 0 depending
+                          on the algorithm E.g., some algorithms decide on the number
+                          to submit
+                        format: int32
+                        type: integer
+                      duration:
+                        description: Duration of jobs Value of 0 (default) indicates
+                          no limit
+                        format: int32
+                        type: integer
+                      name:
+                        description: Name to identify the job group
+                        type: string
+                      nodes:
+                        default: 1
+                        description: Number of nodes for job
+                        format: int32
+                        type: integer
+                      tasks:
+                        description: Number of tasks for the job, defaults to 1 Node
+                          count cannot be greater than task count
+                        format: int32
+                        type: integer
+                      workdir:
+                        description: Working directory for job group (if unset, uses
+                          container default)
+                        type: string
+                    required:
+                    - command
+                    - name
+                    type: object
+                  type: array
+                description: These lookup values must be string, so we convert from
+                  int32 to it Jobs matrix lookup (what we can mutate)
+                type: object
+            required:
+            - jobs
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: ensemble-operator
+    app.kubernetes.io/instance: controller-manager-sa
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: serviceaccount
+    app.kubernetes.io/part-of: ensemble-operator
+  name: ensemble-operator-controller-manager
+  namespace: ensemble-operator-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: ensemble-operator
+    app.kubernetes.io/instance: leader-election-role
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: role
+    app.kubernetes.io/part-of: ensemble-operator
+  name: ensemble-operator-leader-election-role
+  namespace: ensemble-operator-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ensemble-operator-manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods/exec
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods/log
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ensemble.flux-framework.org
+  resources:
+  - ensembles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ensemble.flux-framework.org
+  resources:
+  - ensembles/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - flux-framework.org
+  resources:
+  - miniclusters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - flux-framework.org
+  resources:
+  - miniclusters/finalizers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - flux-framework.org
+  resources:
+  - miniclusters/status
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: kube-rbac-proxy
+    app.kubernetes.io/created-by: ensemble-operator
+    app.kubernetes.io/instance: metrics-reader
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/part-of: ensemble-operator
+  name: ensemble-operator-metrics-reader
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: kube-rbac-proxy
+    app.kubernetes.io/created-by: ensemble-operator
+    app.kubernetes.io/instance: proxy-role
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/part-of: ensemble-operator
+  name: ensemble-operator-proxy-role
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: ensemble-operator
+    app.kubernetes.io/instance: leader-election-rolebinding
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: rolebinding
+    app.kubernetes.io/part-of: ensemble-operator
+  name: ensemble-operator-leader-election-rolebinding
+  namespace: ensemble-operator-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ensemble-operator-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: ensemble-operator-controller-manager
+  namespace: ensemble-operator-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: ensemble-operator
+    app.kubernetes.io/instance: manager-rolebinding
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: clusterrolebinding
+    app.kubernetes.io/part-of: ensemble-operator
+  name: ensemble-operator-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ensemble-operator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: ensemble-operator-controller-manager
+  namespace: ensemble-operator-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: kube-rbac-proxy
+    app.kubernetes.io/created-by: ensemble-operator
+    app.kubernetes.io/instance: proxy-rolebinding
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: clusterrolebinding
+    app.kubernetes.io/part-of: ensemble-operator
+  name: ensemble-operator-proxy-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ensemble-operator-proxy-role
+subjects:
+- kind: ServiceAccount
+  name: ensemble-operator-controller-manager
+  namespace: ensemble-operator-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: kube-rbac-proxy
+    app.kubernetes.io/created-by: ensemble-operator
+    app.kubernetes.io/instance: controller-manager-metrics-service
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: service
+    app.kubernetes.io/part-of: ensemble-operator
+    control-plane: controller-manager
+  name: ensemble-operator-controller-manager-metrics-service
+  namespace: ensemble-operator-system
+spec:
+  ports:
+  - name: https
+    port: 8443
+    protocol: TCP
+    targetPort: https
+  selector:
+    control-plane: controller-manager
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: manager
+    app.kubernetes.io/created-by: ensemble-operator
+    app.kubernetes.io/instance: controller-manager
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: deployment
+    app.kubernetes.io/part-of: ensemble-operator
+    control-plane: controller-manager
+  name: ensemble-operator-controller-manager
+  namespace: ensemble-operator-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --secure-listen-address=0.0.0.0:8443
+        - --upstream=http://127.0.0.1:8080/
+        - --logtostderr=true
+        - --v=0
+        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.15.0
+        name: kube-rbac-proxy
+        ports:
+        - containerPort: 8443
+          name: https
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 5m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+      - args:
+        - --health-probe-bind-address=:8081
+        - --metrics-bind-address=127.0.0.1:8080
+        - --leader-elect
+        command:
+        - /manager
+        image: ghcr.io/converged-computing/ensemble-operator:test
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: ensemble-operator-controller-manager
+      terminationGracePeriodSeconds: 10
