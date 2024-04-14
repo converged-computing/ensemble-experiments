@@ -1,0 +1,13 @@
+,node,creation_time,noticed_disappeared_time,elapsed_time
+1,gke-ensemble-cluster-default-pool-7bb48b67-1p3f,2024-04-14 19:27:59,2024-04-14 19:57:35.141390,1776
+2,gke-ensemble-cluster-default-pool-7bb48b67-c2cj,2024-04-14 19:27:59,2024-04-14 19:57:35.141390,1776
+0,gke-ensemble-cluster-default-pool-7bb48b67-027d,2024-04-14 19:28:00,2024-04-14 19:57:35.141390,1775
+3,gke-ensemble-cluster-default-pool-7bb48b67-gftk,2024-04-14 19:51:52,2024-04-14 19:57:35.133255,343
+4,gke-ensemble-cluster-default-pool-7bb48b67-stmr,2024-04-14 19:51:52,2024-04-14 19:57:35.133270,343
+5,gke-ensemble-cluster-default-pool-7bb48b67-gk7z,2024-04-14 19:52:15,2024-04-14 19:57:35.133275,320
+6,gke-ensemble-cluster-default-pool-7bb48b67-2xlg,2024-04-14 19:52:18,2024-04-14 19:57:35.133279,317
+7,gke-ensemble-cluster-default-pool-7bb48b67-rz7m,2024-04-14 19:52:20,2024-04-14 19:57:35.133284,315
+8,gke-ensemble-cluster-default-pool-7bb48b67-ppmz,2024-04-14 19:52:45,2024-04-14 19:57:35.133288,290
+9,gke-ensemble-cluster-default-pool-7bb48b67-qqjw,2024-04-14 19:52:47,2024-04-14 19:57:35.133292,288
+10,gke-ensemble-cluster-default-pool-7bb48b67-5brn,2024-04-14 19:52:49,2024-04-14 19:57:35.133297,286
+11,gke-ensemble-cluster-default-pool-7bb48b67-4b4w,2024-04-14 19:52:57,2024-04-14 19:57:35.133301,278

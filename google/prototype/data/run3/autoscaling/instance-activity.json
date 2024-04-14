@@ -1,0 +1,95 @@
+{
+    "gke-ensemble-cluster-default-pool-7bb48b67-027d": {
+        "creation_time": "2024-04-14 19:28:00"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-1p3f": {
+        "creation_time": "2024-04-14 19:27:59"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-c2cj": {
+        "creation_time": "2024-04-14 19:27:59"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-l4cx": {
+        "creation_time": "2024-04-14 19:33:47",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509100"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-zt29": {
+        "creation_time": "2024-04-14 19:33:48",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509118"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-bqgt": {
+        "creation_time": "2024-04-14 19:33:50",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509125"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-bzrp": {
+        "creation_time": "2024-04-14 19:33:50",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509131"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-mv25": {
+        "creation_time": "2024-04-14 19:33:50",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509136"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-4jh9": {
+        "creation_time": "2024-04-14 19:33:50",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509141"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-88r7": {
+        "creation_time": "2024-04-14 19:33:50",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509146"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-drdl": {
+        "creation_time": "2024-04-14 19:33:51",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509153"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-s8pr": {
+        "creation_time": "2024-04-14 19:33:51",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509158"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-xgbr": {
+        "creation_time": "2024-04-14 19:33:50",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509163"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-7jxh": {
+        "creation_time": "2024-04-14 19:33:52",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509168"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-9kds": {
+        "creation_time": "2024-04-14 19:33:54",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509173"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-9m7x": {
+        "creation_time": "2024-04-14 19:33:52",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509178"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-p4tk": {
+        "creation_time": "2024-04-14 19:33:53",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509183"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-tk7j": {
+        "creation_time": "2024-04-14 19:33:53",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509187"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-vgsl": {
+        "creation_time": "2024-04-14 19:33:53",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509192"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-76fq": {
+        "creation_time": "2024-04-14 19:33:54",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509197"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-7hkl": {
+        "creation_time": "2024-04-14 19:33:57",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509202"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-svvj": {
+        "creation_time": "2024-04-14 19:33:57",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509207"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-cfcj": {
+        "creation_time": "2024-04-14 19:33:59",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509212"
+    },
+    "gke-ensemble-cluster-default-pool-7bb48b67-2wlq": {
+        "creation_time": "2024-04-14 19:34:08",
+        "noticed_disappeared_time": "2024-04-14 19:40:16.509217"
+    }
+}

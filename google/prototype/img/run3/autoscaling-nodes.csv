@@ -1,0 +1,25 @@
+,node,creation_time,noticed_disappeared_time,elapsed_time
+1,gke-ensemble-cluster-default-pool-7bb48b67-1p3f,2024-04-14 19:27:59,2024-04-14 19:40:19.976324,740
+2,gke-ensemble-cluster-default-pool-7bb48b67-c2cj,2024-04-14 19:27:59,2024-04-14 19:40:19.976324,740
+0,gke-ensemble-cluster-default-pool-7bb48b67-027d,2024-04-14 19:28:00,2024-04-14 19:40:19.976324,739
+3,gke-ensemble-cluster-default-pool-7bb48b67-l4cx,2024-04-14 19:33:47,2024-04-14 19:40:16.509100,389
+4,gke-ensemble-cluster-default-pool-7bb48b67-zt29,2024-04-14 19:33:48,2024-04-14 19:40:16.509118,388
+5,gke-ensemble-cluster-default-pool-7bb48b67-bqgt,2024-04-14 19:33:50,2024-04-14 19:40:16.509125,386
+6,gke-ensemble-cluster-default-pool-7bb48b67-bzrp,2024-04-14 19:33:50,2024-04-14 19:40:16.509131,386
+7,gke-ensemble-cluster-default-pool-7bb48b67-mv25,2024-04-14 19:33:50,2024-04-14 19:40:16.509136,386
+8,gke-ensemble-cluster-default-pool-7bb48b67-4jh9,2024-04-14 19:33:50,2024-04-14 19:40:16.509141,386
+9,gke-ensemble-cluster-default-pool-7bb48b67-88r7,2024-04-14 19:33:50,2024-04-14 19:40:16.509146,386
+12,gke-ensemble-cluster-default-pool-7bb48b67-xgbr,2024-04-14 19:33:50,2024-04-14 19:40:16.509163,386
+11,gke-ensemble-cluster-default-pool-7bb48b67-s8pr,2024-04-14 19:33:51,2024-04-14 19:40:16.509158,385
+10,gke-ensemble-cluster-default-pool-7bb48b67-drdl,2024-04-14 19:33:51,2024-04-14 19:40:16.509153,385
+13,gke-ensemble-cluster-default-pool-7bb48b67-7jxh,2024-04-14 19:33:52,2024-04-14 19:40:16.509168,384
+15,gke-ensemble-cluster-default-pool-7bb48b67-9m7x,2024-04-14 19:33:52,2024-04-14 19:40:16.509178,384
+16,gke-ensemble-cluster-default-pool-7bb48b67-p4tk,2024-04-14 19:33:53,2024-04-14 19:40:16.509183,383
+17,gke-ensemble-cluster-default-pool-7bb48b67-tk7j,2024-04-14 19:33:53,2024-04-14 19:40:16.509187,383
+18,gke-ensemble-cluster-default-pool-7bb48b67-vgsl,2024-04-14 19:33:53,2024-04-14 19:40:16.509192,383
+14,gke-ensemble-cluster-default-pool-7bb48b67-9kds,2024-04-14 19:33:54,2024-04-14 19:40:16.509173,382
+19,gke-ensemble-cluster-default-pool-7bb48b67-76fq,2024-04-14 19:33:54,2024-04-14 19:40:16.509197,382
+20,gke-ensemble-cluster-default-pool-7bb48b67-7hkl,2024-04-14 19:33:57,2024-04-14 19:40:16.509202,379
+21,gke-ensemble-cluster-default-pool-7bb48b67-svvj,2024-04-14 19:33:57,2024-04-14 19:40:16.509207,379
+22,gke-ensemble-cluster-default-pool-7bb48b67-cfcj,2024-04-14 19:33:59,2024-04-14 19:40:16.509212,377
+23,gke-ensemble-cluster-default-pool-7bb48b67-2wlq,2024-04-14 19:34:08,2024-04-14 19:40:16.509217,368

@@ -1,3 +1,5 @@
 kubernetes
 kubescaler
 Jinja2
+seaborn
+pandas

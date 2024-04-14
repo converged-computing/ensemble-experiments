@@ -72,35 +72,25 @@ spec:
       name: workload-demand
       options:
         terminateChecks: 2
-        scaleUpChecks: 4
+        scaleUpChecks: 1
         order: "{{ order }}"
 
     jobs:
-      - name: lammps-3
+      - name: lammps-2
         command: lmp -v x {{x}} -v y {{y}} -v z {{z}} -in in.reaxc.hns -nocite
         count: 3
-        nodes: 3
-        tasks: 9
+        nodes: 2
+        tasks: 6
       - name: lammps-4
         command: lmp -v x {{x}} -v y {{y}} -v z {{z}} -in in.reaxc.hns -nocite
         count: 3
         nodes: 4
         tasks: 12
-      - name: lammps-5
-        command: lmp -v x {{x}} -v y {{y}} -v z {{z}} -in in.reaxc.hns -nocite
-        count: 3
-        nodes: 5
-        tasks: 15
       - name: lammps-6
         command: lmp -v x {{x}} -v y {{y}} -v z {{z}} -in in.reaxc.hns -nocite
         count: 3
         nodes: 6
         tasks: 18
-      - name: lammps-7
-        command: lmp -v x {{x}} -v y {{y}} -v z {{z}} -in in.reaxc.hns -nocite
-        count: 3
-        nodes: 7
-        tasks: 21
       - name: lammps-8
         command: lmp -v x {{x}} -v y {{y}} -v z {{z}} -in in.reaxc.hns -nocite
         count: 3
@@ -112,7 +102,11 @@ spec:
         size: {{ size }}
         minSize: {{ min_size }}
         maxSize: {{ max_size }}
-
+        
+        # The workers should not fail when they clean up
+        flux:
+          completeWorkers: true
+        
         # This is a list because a pod can support multiple containers
         containers:
         - image: ghcr.io/converged-computing/metric-lammps:latest
@@ -133,7 +127,14 @@ experiment_setups = {
     "autoscaling": {
         "template": minicluster_template,
         "kwargs": [
-            {"size": "3", "tasks": "9", "cpu_limit": "3", "x": "2", "y": "2", "z": "2"},
+            {
+                "size": "2",
+                "tasks": "6",
+                "cpu_limit": "3",
+                "x": "2",
+                "y": "2",
+                "z": "2",
+            },
             {
                 "size": "4",
                 "tasks": "12",
@@ -143,24 +144,8 @@ experiment_setups = {
                 "z": "2",
             },
             {
-                "size": "5",
-                "tasks": "15",
-                "cpu_limit": "3",
-                "x": "2",
-                "y": "2",
-                "z": "2",
-            },
-            {
                 "size": "6",
                 "tasks": "18",
-                "cpu_limit": "3",
-                "x": "2",
-                "y": "2",
-                "z": "2",
-            },
-            {
-                "size": "7",
-                "tasks": "21",
                 "cpu_limit": "3",
                 "x": "2",
                 "y": "2",
@@ -217,10 +202,31 @@ experiment_setups = {
             },
         ],
     },
+    # This mimics running all jobs in one static minicluster
+    "ensemble-static": {
+        "template": ensemble_template,
+        "kwargs": [
+            {
+                "cpu_limit": "3",
+                "x": "2",
+                "y": "2",
+                "z": "2",
+                "size": "24",
+                "order": "random",
+            },
+        ],
+    },
     "static-max-size": {
         "template": minicluster_template,
         "kwargs": [
-            {"size": "3", "tasks": "9", "cpu_limit": "3", "x": "2", "y": "2", "z": "2"},
+            {
+                "size": "2",
+                "tasks": "6",
+                "cpu_limit": "3",
+                "x": "2",
+                "y": "2",
+                "z": "2",
+            },
             {
                 "size": "4",
                 "tasks": "12",
@@ -230,24 +236,8 @@ experiment_setups = {
                 "z": "2",
             },
             {
-                "size": "5",
-                "tasks": "15",
-                "cpu_limit": "3",
-                "x": "2",
-                "y": "2",
-                "z": "2",
-            },
-            {
                 "size": "6",
                 "tasks": "18",
-                "cpu_limit": "3",
-                "x": "2",
-                "y": "2",
-                "z": "2",
-            },
-            {
-                "size": "7",
-                "tasks": "21",
                 "cpu_limit": "3",
                 "x": "2",
                 "y": "2",
@@ -332,9 +322,6 @@ def monitor_nodes(history, outdir):
             print(f"🥸️ Node {name} has dissappeared from cluster.")
             now = datetime.utcnow()
             history[name]["noticed_disappeared_time"] = str(now)
-            history[name]["elapsed_time"] = (
-                history[name]["creation_time"] - now
-            ).seconds
 
     # Save data on each pass, need to ensure we have a string
     history_saved = {}
@@ -550,14 +537,17 @@ def submit_container_pull(args, template):
     print(minicluster_yaml)
     submit_job(minicluster_yaml)
 
-    # Wait for all pods to be complete
-    wait_for_pods_complete()
+    # If we wait too quickly won't find any pods
+    time.sleep(10)
+
+    # Wait for all pods to be complete (completed or running is fine, means the container was pulled)
+    wait_for_pods_complete(states=["Succeeded", "Running"])
 
     # This one we can delete - don't want in history
     delete_minicluster(pull_job["name"])
 
 
-def wait_for_pods_complete(history=None, path=None):
+def wait_for_pods_complete(history=None, path=None, states=None):
     """
     Wait for all pods to be in completion state.
 
@@ -565,19 +555,20 @@ def wait_for_pods_complete(history=None, path=None):
     """
     config.load_kube_config()
     kube_client = client.CoreV1Api()
+    states = states or ["Succeeded", "Failed"]
 
     while True:
         if history is not None and path is not None:
             monitor_nodes(history, path)
         pods = kube_client.list_namespaced_pod(namespace="default")
         phases = [x.status.phase for x in pods.items]
-        is_done = all([p in ["Succeeded", "Failed"] for p in phases])
+        is_done = all([p in states for p in phases])
         if is_done:
             print(f"Pods are all completed: {phases}")
             return
 
 
-def wait_for_size(size):
+def wait_for_size(size, history=None, path=None):
     """
     Wait for the cluster to scale down to a certain size
     """
@@ -593,6 +584,8 @@ def wait_for_size(size):
     while True:
         count = len(k8s.list_node().items)
         print(f"Cluster has size {count}, waiting for size {size}")
+        if history is not None and path is not None:
+            monitor_nodes(history, path)
         if count == size:
             end = time.time()
             return end - start
@@ -607,7 +600,6 @@ def run_single_miniclusters(name, exp, args, path, pull_containers=False):
 
     # Get an initial state of nodes
     history = {}
-    monitor_nodes(history, path)
 
     # Minicluster template
     template = Template(minicluster_template)
@@ -646,6 +638,8 @@ def run_single_miniclusters(name, exp, args, path, pull_containers=False):
         # Submit a max size job to pull to minicluster
         if pull_containers:
             submit_container_pull(args, template)
+            wait_for_size(args.scale_down_to)
+        monitor_nodes(history, path)
 
         # Randomly shuffle them
         random.shuffle(jobs)
@@ -665,6 +659,7 @@ def run_single_miniclusters(name, exp, args, path, pull_containers=False):
 
             # This submits the job, doesn't do more than that (e.g., waiting)
             submit_job(minicluster_yaml)
+            monitor_nodes(history, path)
             submit_time = datetime.utcnow()
             result["submit_time"] = str(submit_time)
             results.append(result)
@@ -680,7 +675,7 @@ def run_single_miniclusters(name, exp, args, path, pull_containers=False):
     # But add 2 to account for operators installed
     scale_down_seconds = 0
     if not args.skip_scale_down:
-        scale_down_seconds = wait_for_size(args.scale_down_to)
+        scale_down_seconds = wait_for_size(args.scale_down_to, history, path)
 
     # One more call to save history
     monitor_nodes(history, path)
@@ -717,13 +712,13 @@ def get_namespace_logs(namespace, container):
         lines = kube_client.read_namespaced_pod_log(
             name=pod.metadata.name, namespace=namespace, container=container
         )
-        logs[pod.metadata.name] = lines
+        logs[pod.metadata.name] = lines.split("\n")
 
     # This gets huge otherwise
-    return logs.split("\n")
+    return logs
 
 
-def run_ensemble(name, exp, args, path):
+def run_ensemble(name, exp, args, path, pull_containers=False):
     """
     Run the ensemble operator
     """
@@ -731,10 +726,15 @@ def run_ensemble(name, exp, args, path):
 
     # Get an initial state of nodes
     history = {}
-    monitor_nodes(history, path)
+
+    # Ensemble and Minicluster template (for pull)
+    template = Template(ensemble_template)
 
     # Minicluster template
-    template = Template(ensemble_template)
+    mc_template = Template(minicluster_template)
+    if pull_containers:
+        submit_container_pull(args, mc_template)
+    monitor_nodes(history, path)
 
     # A new result object for each. Runs results go into the registry
     results = []
@@ -773,6 +773,7 @@ def run_ensemble(name, exp, args, path):
             # This submits the job, doesn't do more than that (e.g., waiting)
             submit_job(ensemble_yaml)
             submit_time = datetime.utcnow()
+            monitor_nodes(history, path)
             result["submit_time"] = str(submit_time)
             results.append(result)
 
@@ -790,10 +791,13 @@ def run_ensemble(name, exp, args, path):
     # But add 2 to account for operators installed
     scale_down_seconds = 0
     if not args.skip_scale_down:
-        scale_down_seconds = wait_for_size(args.scale_down_to)
+        scale_down_seconds = wait_for_size(args.scale_down_to, history, path)
 
     # One more call to save history
     monitor_nodes(history, path)
+
+    # One more call to get when scaled down
+    scaled_down = datetime.utcnow()
 
     # When they are done, get the metadata about pod times for each.
     # It's easier to save everything - we will need to know the pods run on and times.
@@ -802,6 +806,7 @@ def run_ensemble(name, exp, args, path):
         "scale_down_min_size_seconds": scale_down_seconds,
         "logs": logs,
         "completed": str(all_complete),
+        "scaled_down": str(scaled_down),
     }
     outfile = os.path.join(path, "results.json")
     utils.write_json(final, outfile)
@@ -920,15 +925,15 @@ def run_experiments(experiments, args):
 
         IPython.embed()
 
-    start = time.time()
-
     # Install the Flux Operator and Ensemble Operator (we need both)
+    start = time.time()
     install_operators()
     end = time.time()
     cli.times["install_operators"] = end - start
 
     # Save original times to reset each experiment
     original_times = copy.deepcopy(cli.times)
+    completed_times = {}
 
     # Note that the experiment already has a table of values filtered down
     # Each experiment has some number of batches (we will typically just run one experiment)
@@ -972,7 +977,14 @@ def run_experiments(experiments, args):
                 name, exp, args, path, pull_containers=pull_containers
             )
         else:
-            run_ensemble(name, exp, args, path)
+            run_ensemble(name, exp, args, path, pull_containers=pull_containers)
+        cli.times["experiment_finished"] = str(datetime.utcnow())
+
+        # Save client and experiment finished times
+        completed_times[name] = {
+            "path": os.path.join(path, "client-times.json"),
+            "times": copy.deepcopy(cli.times),
+        }
         count += 1
 
     watcher.stop()
@@ -981,6 +993,9 @@ def run_experiments(experiments, args):
     # When we are done, delete the entire cluster
     # I hope this includes node groups, we will see
     cli.delete_cluster()
+    for experiment, meta in completed_times.items():
+        meta["times"]["delete_cluster"] = cli.times["delete_cluster"]
+        utils.write_json(meta["times"], meta["path"])
 
 
 if __name__ == "__main__":
