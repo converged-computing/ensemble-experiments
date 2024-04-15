@@ -22,26 +22,27 @@ These experiments are all run and controlled with python.
 python run_experiments.py --help
 
 # These are two different setups - the static is one consistent size
-python run_experiments.py --data-dir ./data/run3 --skip static-max-size --skip ensemble-static
+python run_experiments.py --data-dir ./data/run5 --skip static-max-size --skip ensemble-static
 ```
 ```console
-🥸️ Node gke-ensemble-cluster-default-pool-7bb48b67-x7nn has dissappeared from cluster.
-🧪️ Experiments are finished. See output in ./data/run3
-total time to run is 2812.2991416454315 seconds
+Cluster has size 6, waiting for size 3
+Cluster has size 3, waiting for size 3
+🥸️ Node gke-ensemble-cluster-default-pool-69242275-zzhz has dissappeared from cluster.
+🥸️ Node gke-ensemble-cluster-default-pool-69242275-ck4q has dissappeared from cluster.
+🥸️ Node gke-ensemble-cluster-default-pool-69242275-pdq6 has dissappeared from cluster.
+🧪️ Experiments are finished. See output in ./data/run5
+total time to run is 2778.8086202144623 seconds
 ```
 ```bash
-python run_experiments.py --data-dir ./data/run3 --name static-max-size --name ensemble-static --min-nodes=24 --max-nodes=24 --skip-scale-down
+python run_experiments.py --data-dir ./data/run5 --name static-max-size --name ensemble-static --min-nodes=24 --max-nodes=24 --skip-scale-down
 ```
 ```console
-minicluster.flux-framework.org "lmp-0-0-size-2-2-2-2" deleted
+minicluster.flux-framework.org "lmp-0-9-size-8-2-2-2" deleted
 
-minicluster.flux-framework.org "lmp-0-6-size-6-2-2-2" deleted
-
-minicluster.flux-framework.org "lmp-1-1-size-2-2-2-2" deleted
-
-🧪️ Experiments are finished. See output in ./data/run3
-total time to run is 896.5345799922943 seconds
+🧪️ Experiments are finished. See output in ./data/run5
+total time to run is 1158.910121679306 seconds
 ```
+
 If something borks and you just need to delete the cluster:
 
 ```bash
@@ -56,6 +57,8 @@ Note that I have a few of these because I was working on tweaking / improving th
 python plot-results.py --out ./img/run1 --results ./data/run1
 python plot-results.py --out ./img/run2 --results ./data/run2
 python plot-results.py --out ./img/run3 --results ./data/run3
+python plot-results.py --out ./img/run4 --results ./data/run4
+python plot-results.py --out ./img/run5 --results ./data/run5
 ```
 
 Right now the web UI is a bit hard coded, and generates from json data. I am planning to refactor this into more of a Jekyll template (that can have multiple data inputs for different experimetns) eventually.

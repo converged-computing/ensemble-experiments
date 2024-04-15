@@ -1,0 +1,47 @@
+{
+    "gke-ensemble-cluster-default-pool-69242275-42vp": {
+        "creation_time": "2024-04-15 01:38:54"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-g1gd": {
+        "creation_time": "2024-04-15 01:38:55"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-slvb": {
+        "creation_time": "2024-04-15 01:38:54"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-kwgx": {
+        "creation_time": "2024-04-15 02:02:09",
+        "noticed_disappeared_time": "2024-04-15 02:08:03.196754"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-s4tt": {
+        "creation_time": "2024-04-15 02:02:09",
+        "noticed_disappeared_time": "2024-04-15 02:07:52.876519"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-ncbd": {
+        "creation_time": "2024-04-15 02:02:37",
+        "noticed_disappeared_time": "2024-04-15 02:07:52.876529"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-znbg": {
+        "creation_time": "2024-04-15 02:02:38",
+        "noticed_disappeared_time": "2024-04-15 02:07:52.876531"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-zpsm": {
+        "creation_time": "2024-04-15 02:02:41",
+        "noticed_disappeared_time": "2024-04-15 02:07:47.593143"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-lqst": {
+        "creation_time": "2024-04-15 02:03:03",
+        "noticed_disappeared_time": "2024-04-15 02:07:52.876534"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-4cnw": {
+        "creation_time": "2024-04-15 02:03:05",
+        "noticed_disappeared_time": "2024-04-15 02:08:13.289728"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-rtcn": {
+        "creation_time": "2024-04-15 02:03:05",
+        "noticed_disappeared_time": "2024-04-15 02:07:52.876536"
+    },
+    "gke-ensemble-cluster-default-pool-69242275-klrr": {
+        "creation_time": "2024-04-15 02:03:09",
+        "noticed_disappeared_time": "2024-04-15 02:07:58.111562"
+    }
+}
