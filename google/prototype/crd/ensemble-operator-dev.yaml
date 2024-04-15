@@ -484,7 +484,7 @@ spec:
                                         has flux
                                       type: boolean
                                     image:
-                                      default: ghcr.io/converged-computing/flux-view-rocky:tag-9@sha256:c78330469641574e8732e2c16281adeabf47e0389c8711070f549f1004dab2c9
+                                      default: ghcr.io/converged-computing/flux-view-rocky:tag-9
                                       type: string
                                     imagePullSecret:
                                       description: Allow the user to pull authenticated

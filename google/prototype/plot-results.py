@@ -33,6 +33,9 @@ Each experiment result should be in this format
 node_lookup = {}
 node_counter = 0
 
+# Experiment interval lengths to compare
+experiment_intervals = {}
+
 plt.style.use("bmh")
 here = os.path.dirname(os.path.abspath(__file__))
 
@@ -86,14 +89,10 @@ def main():
     # Save a master pods_df
     for name in names:
         print(f"Parsing experiment {name}")
-        try:
-            new_data, dfs = parse_experiment(indir, name)
-        except:
-            continue
+        new_data, dfs = parse_experiment(indir, name)
         data += new_data
         all_dfs[name] = {}
-        if "pods" in dfs:
-            pods_dfs.append(dfs["pods"])
+        pods_dfs.append(dfs["pods"])
         for df_name, df in dfs.items():
             df.to_csv(os.path.join(outdir, f"{name}-{df_name}.csv"))
             all_dfs[name][df_name] = df
@@ -108,19 +107,23 @@ def main():
 
     # We need to update nodes in the plot
     print([str(x) for x in list(range(0, node_counter))])
+    print(json.dumps(experiment_intervals, indent=4))
 
 
-def date_range(start, end, intv):
+def date_range(start, end, intv, name):
     """
     Generate a range of dates from the string intervals
 
     We might want to remove the Year, month, day
     """
+    global experiment_intervals
+
     start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
     end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
 
     # This is the interval length
     diff = (end - start) / intv
+    experiment_intervals[name] = diff.seconds
 
     intervals = []
     for i in range(intv):
@@ -183,7 +186,7 @@ def parse_experiment(indir, name):
     print(df)
     # Latest time will have microseconds, but K8s doesn't have that
     latest_time = str(latest_time).rsplit(".", 1)[0]
-    intervals = date_range(str(earliest_time), latest_time, 35)
+    intervals = date_range(str(earliest_time), latest_time, 35, name)
 
     # Now create unique nodes (and their index)
     node_names = df.node.sort_values().unique()
@@ -227,20 +230,25 @@ def parse_experiment(indir, name):
     print(f"Adding {len(added)} nodes as active for experiment {name}")
 
     # Make epoch times for when the experiment ended (pods cleand up) vs jobs done
-    finished_dt = (
-        datetime.strptime(
-            times["experiment_finished"].split(".")[0], "%Y-%m-%d %H:%M:%S"
-        ).timestamp()
-        * 1000
+    finished_dt = datetime.strptime(
+        times["experiment_finished"].split(".")[0], "%Y-%m-%d %H:%M:%S"
     )
-    jobs_done_dt = (
-        datetime.strptime(
-            exp_results["completed"].split(".")[0], "%Y-%m-%d %H:%M:%S"
-        ).timestamp()
-        * 1000
+    jobs_done_dt = datetime.strptime(
+        exp_results["completed"].split(".")[0], "%Y-%m-%d %H:%M:%S"
     )
 
     dfs = {"nodes": df}
+
+    # Figure out the intervals when the pods were done vs the experiment done (nodes back to 3)
+    jobs_interval = None
+    finished_interval = None
+    for i, interval in enumerate(intervals):
+        start_interval_dt = datetime.strptime(interval, "%Y-%m-%d %H:%M:%S")
+        # The latest interval it happens after
+        if jobs_interval is None or jobs_done_dt > start_interval_dt:
+            jobs_interval = i
+        if finished_interval is None or finished_dt > start_interval_dt:
+            finished_interval = i
 
     # Prepare in format we need for result
     results = [
@@ -250,8 +258,8 @@ def parse_experiment(indir, name):
             + " ".join([x.capitalize() for x in name.split("-")]),
             "data": {
                 "chart_options": {
-                    "jobs_finished": int(jobs_done_dt),
-                    "experiment_finished": int(finished_dt),
+                    "jobs_finished": jobs_interval,
+                    "experiment_finished": finished_interval,
                 },
                 "values": {"data": active},
             },
@@ -262,14 +270,48 @@ def parse_experiment(indir, name):
     if "pods" in exp_results:
         dfs["pods"] = get_pods_timing(exp_results, name)
 
-    # TODO need to run these again...
+    # This is the flux queue jobs dump - note, not used yet, durations are not set
     else:
-        pass
-        # import IPython
-        # IPython.embed()
-        # sys.exit()
+        jobs = [x for x in list(exp_results["logs"].values())[0] if '{"jobs"' in x]
+        if jobs:
+            jobs = json.loads(jobs[-1])
+            dfs["pods"] = get_jobs_timing(jobs, name)
 
     return results, dfs
+
+
+def get_jobs_timing(jobs, name):
+    """
+    This isn't comparing apples to apples, but it's the granularity we have
+    for flux jobs. Likely we could monitor the pods too.
+
+    For ensemble, we instead have the job queue
+    """
+    jobs_df = pandas.DataFrame(
+        columns=[
+            "pod",
+            "job",
+            "size",
+            "start_time",
+            "finished_time",
+            "elapsed_time",
+            "experiment",
+        ]
+    )
+    idx = 0
+    for job in jobs["jobs"]:
+        jobs_df.loc[idx, :] = [
+            job["nodelist"],
+            job["id"],
+            job["nnodes"],
+            job["t_submit"],
+            None,
+            job["t_cleanup"] - job['t_run'],
+            name,
+        ]
+        idx += 1
+    print(jobs_df)
+    return jobs_df
 
 
 def get_pods_timing(exp_results, name):

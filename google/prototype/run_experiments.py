@@ -62,7 +62,7 @@ spec:
     # that I push and use for development. Pull always ensures we get latest
   - sidecar:
       pullAlways: true
-      image: ghcr.io/converged-computing/ensemble-operator-api:rockylinux9-test@sha256:a5dc6969a5f4d5911b630e2a093b4c412b4731df04ee23ed29b84e214fff521d
+      image: ghcr.io/converged-computing/ensemble-operator-api:rockylinux9-test
 
     # Algorithm and options:
     # This is the algorithm run by the operator. The options are passed to
@@ -75,27 +75,29 @@ spec:
         scaleUpChecks: 1
         order: "{{ order }}"
 
+    # These are slightly different - flux gets to use the full node capacity
+    # so 4 cores per node, tasks == size * 4
     jobs:
       - name: lammps-2
         command: lmp -v x {{x}} -v y {{y}} -v z {{z}} -in in.reaxc.hns -nocite
         count: 3
         nodes: 2
-        tasks: 6
+        tasks: 8
       - name: lammps-4
         command: lmp -v x {{x}} -v y {{y}} -v z {{z}} -in in.reaxc.hns -nocite
         count: 3
         nodes: 4
-        tasks: 12
+        tasks: 16
       - name: lammps-6
         command: lmp -v x {{x}} -v y {{y}} -v z {{z}} -in in.reaxc.hns -nocite
         count: 3
         nodes: 6
-        tasks: 18
+        tasks: 24
       - name: lammps-8
         command: lmp -v x {{x}} -v y {{y}} -v z {{z}} -in in.reaxc.hns -nocite
         count: 3
         nodes: 8
-        tasks: 24
+        tasks: 32
 
     minicluster:
       spec:
@@ -317,8 +319,9 @@ def monitor_nodes(history, outdir):
         seen.add(name)
 
     # Now go through cache, nodes that aren't in seen were removed
+    # And we can't have seen them before
     for name in history:
-        if name not in seen:
+        if name not in seen and "noticed_disappeared_time" not in history[name]:
             print(f"🥸️ Node {name} has dissappeared from cluster.")
             now = datetime.utcnow()
             history[name]["noticed_disappeared_time"] = str(now)
