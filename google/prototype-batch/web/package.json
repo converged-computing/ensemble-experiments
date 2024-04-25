@@ -1,0 +1,14 @@
+{
+  "name": "ensemble-prototype",
+  "main": "ensemble.js",
+  "version": "156.0.0",
+  "homepage": "https://github.com/converged-computing/ensemble-experiments",
+  "author": {
+    "name": "Vanessa Sochat",
+    "url": "https://vsoch.github.io"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4 - 5"
+  }
+}

@@ -1,0 +1,154 @@
+{
+    "gke-ensemble-cluster-default-pool-9d5b7f63-6px5": {
+        "creation_time": "2024-04-24 23:07:34"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-6wr7": {
+        "creation_time": "2024-04-24 23:07:35"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-d9mk": {
+        "creation_time": "2024-04-24 23:07:35"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-rx31": {
+        "creation_time": "2024-04-24 23:07:33"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-brzx": {
+        "creation_time": "2024-04-24 23:15:43",
+        "noticed_disappeared_time": "2024-04-24 23:23:40.126007"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-5ldx": {
+        "creation_time": "2024-04-24 23:15:46",
+        "noticed_disappeared_time": "2024-04-24 23:23:32.139163"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-twn5": {
+        "creation_time": "2024-04-24 23:15:53",
+        "noticed_disappeared_time": "2024-04-24 23:23:34.826386"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-7djg": {
+        "creation_time": "2024-04-24 23:16:08",
+        "noticed_disappeared_time": "2024-04-24 23:23:34.826394"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-9swd": {
+        "creation_time": "2024-04-24 23:16:08",
+        "noticed_disappeared_time": "2024-04-24 23:23:32.139172"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-gsw4": {
+        "creation_time": "2024-04-24 23:16:11",
+        "noticed_disappeared_time": "2024-04-24 23:23:40.126019"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-fhhd": {
+        "creation_time": "2024-04-24 23:16:18",
+        "noticed_disappeared_time": "2024-04-24 23:23:32.139174"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-f5vg": {
+        "creation_time": "2024-04-24 23:16:19",
+        "noticed_disappeared_time": "2024-04-24 23:23:23.818233"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-dhxb": {
+        "creation_time": "2024-04-24 23:16:20",
+        "noticed_disappeared_time": "2024-04-24 23:23:23.818243"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-4x2h": {
+        "creation_time": "2024-04-24 23:16:40",
+        "noticed_disappeared_time": "2024-04-24 23:23:34.826397"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-4xdp": {
+        "creation_time": "2024-04-24 23:16:42",
+        "noticed_disappeared_time": "2024-04-24 23:23:32.139177"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-ksqm": {
+        "creation_time": "2024-04-24 23:16:42",
+        "noticed_disappeared_time": "2024-04-24 23:23:48.096152"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-7lz5": {
+        "creation_time": "2024-04-24 23:16:44",
+        "noticed_disappeared_time": "2024-04-24 23:23:48.096162"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-4j8l": {
+        "creation_time": "2024-04-24 23:16:45",
+        "noticed_disappeared_time": "2024-04-24 23:23:53.285365"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-cp4z": {
+        "creation_time": "2024-04-24 23:16:47",
+        "noticed_disappeared_time": "2024-04-24 23:23:34.826400"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-dm48": {
+        "creation_time": "2024-04-24 23:17:09",
+        "noticed_disappeared_time": "2024-04-24 23:23:32.139179"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-pwkb": {
+        "creation_time": "2024-04-24 23:17:09",
+        "noticed_disappeared_time": "2024-04-24 23:23:32.139181"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-q4pk": {
+        "creation_time": "2024-04-24 23:17:10",
+        "noticed_disappeared_time": "2024-04-24 23:23:34.826402"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-xzr7": {
+        "creation_time": "2024-04-24 23:17:11",
+        "noticed_disappeared_time": "2024-04-24 23:23:34.826404"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-h4tp": {
+        "creation_time": "2024-04-24 23:17:13",
+        "noticed_disappeared_time": "2024-04-24 23:23:34.826406"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-qk56": {
+        "creation_time": "2024-04-24 23:17:14",
+        "noticed_disappeared_time": "2024-04-24 23:23:32.139183"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-hjgl": {
+        "creation_time": "2024-04-24 23:17:40",
+        "noticed_disappeared_time": "2024-04-24 23:23:32.139185"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-krm2": {
+        "creation_time": "2024-04-24 23:17:40",
+        "noticed_disappeared_time": "2024-04-24 23:23:40.126025"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-7ndb": {
+        "creation_time": "2024-04-24 23:17:42",
+        "noticed_disappeared_time": "2024-04-24 23:23:48.096167"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-mxff": {
+        "creation_time": "2024-04-24 23:17:41",
+        "noticed_disappeared_time": "2024-04-24 23:23:23.818246"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-wlkn": {
+        "creation_time": "2024-04-24 23:17:42",
+        "noticed_disappeared_time": "2024-04-24 23:27:26.212314"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-4zps": {
+        "creation_time": "2024-04-24 23:17:44",
+        "noticed_disappeared_time": "2024-04-24 23:23:32.139187"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-pzv5": {
+        "creation_time": "2024-04-24 23:17:45",
+        "noticed_disappeared_time": "2024-04-24 23:23:53.285375"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-p57k": {
+        "creation_time": "2024-04-24 23:17:46",
+        "noticed_disappeared_time": "2024-04-24 23:23:53.285377"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-fldb": {
+        "creation_time": "2024-04-24 23:18:10",
+        "noticed_disappeared_time": "2024-04-24 23:23:40.126028"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-t9jp": {
+        "creation_time": "2024-04-24 23:18:11",
+        "noticed_disappeared_time": "2024-04-24 23:23:40.126030"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-cm46": {
+        "creation_time": "2024-04-24 23:18:14",
+        "noticed_disappeared_time": "2024-04-24 23:23:53.285380"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-jvs9": {
+        "creation_time": "2024-04-24 23:18:15",
+        "noticed_disappeared_time": "2024-04-24 23:23:48.096170"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-tpsh": {
+        "creation_time": "2024-04-24 23:18:17",
+        "noticed_disappeared_time": "2024-04-24 23:23:53.285382"
+    },
+    "gke-ensemble-cluster-default-pool-9d5b7f63-984x": {
+        "creation_time": "2024-04-24 23:18:21",
+        "noticed_disappeared_time": "2024-04-24 23:23:32.139189"
+    }
+}

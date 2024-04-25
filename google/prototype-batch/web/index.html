@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Plot: The impact of vaccines</title>
+<link rel="stylesheet" type="text/css" href="./inspector.css">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+<style>
+html, body, .container {
+  font-family: "Open Sans", sans-serif;
+}
+</style>
+
+<body>
+<div class="container" style="margin-top:50px">
+<div class="row">
+<div class="col-md-12">
+  <h1>Ensemble Workloads (Batches)</h1>
+  <h4 style="color: gray; font-style:italic">Prototype Experiments with LAMMPS</h4>
+<br>
+  <h3>What is the experiment design?</h3>
+
+<p>These experiments were run with the <a target="_blank" href="https://github.com/converged-computing/ensemble-operator">ensemble operator</a>. See <a href="#details">detalis</a></a>.
+
+These experiments are a derivation of the first run, but with 3-4 batches run of each type (random, descending, and ascending) and with 10x of LAMMPS at each of sizes 2, 4, 6, and 8, and up to a maximum cluster size of 40. I was unable to run these outside of the Ensemble Operator because the queue would clog.
+
+<br>
+
+As a reminder, all of these use a workload-driven, reactive algorithm, and vary the algorithm parameters for each. You can read more about the ensemble operator <a target="_blank" href="https://converged-computing.github.io/ensemble-operator/getting_started/algorithms.html">workload algorithms here</a>. This algorithm submits jobs via a sidecar gRPC as soon as the queue is ready, and the variation on that algorithm simply changes the order the jobs are presented in the queue. It is either random, or descending or ascending in size upon original submission, and the ensemble operator responds to scale the MiniCluster (the ensemble member) up and down. 
+
+All approaches use autoscaling on GKE with the <a href="https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler" target="_blank">optimized-utilization</a> setting, which I chose because it is more aggressive. With "balanced" I saw nodes still persisting after not being used for 8+ minutes.
+</p>
+
+<br>
+
+</div>
+</div>
+<br>
+<div class="row">
+<div class="col-md-12">
+  <h3>What do the axis mean?</h3>
+
+<p>The X axis is a normalized unit of time, meaning each experiment was split into 35 periods. This was largely done for visualization purposes, and means that the size of the bins (a period of time, the entire experiment duration / 35 periods) can be tweaked. It also means the bins are not comparable between experiments. Here are the times for each period for the interested reader.
+
+<pre><code>
+{
+    "ensemble-ascending-0": 20,
+    "ensemble-ascending-1": 15,
+    "ensemble-ascending-2": 16
+    "ensemble-random-0": 11,
+    "ensemble-random-1": 9,
+    "ensemble-random-2": 9,
+    "ensemble-descending-0": 28,
+    "ensemble-descending-1": 21,
+    "ensemble-descending-2": 21,
+}
+</code></pre>
+
+These results might make sense if:
+
+<ul>
+<li>Ascending starts with small jobs (2) and doesn't ask to scale until later</li>
+<li>Descending starts with large jobs, but the time to get more nodes at once takes longer</li>
+<li>Random balances those two things.</li>
+</p>
+
+I think we need to compare the above with <a href="https://github.com/converged-computing/operator-experiments/tree/main/google/autoscale/run1">time to add and remove nodes, per request</a> to make sense of the results. If the counts are different, then the number that we ask for (and when) would matter.
+
+<br>
+
+All experiments used c2d-standard-8 (4 cores) on Google Cloud. Select different experiments with the dropdown menu below.
+</p>
+
+<br>
+
+</div></div>
+
+<div id="plot"></div>
+
+<br>
+
+<h6>Distribution of Node "Up" Times</h6>
+<img width="100%" src="img/ensemble-node-times_ensemble-node-times.png"/>
+
+<br>
+<h6>Total Accumulated Node Time</h6>
+<img width="100%" src="img/ensemble-total-node-time_ensemble-total-node-time.png"/>
+
+<br>
+<h6>Unique Nodes per Experiment</h6>
+
+<br>
+
+<img width="100%" src="img/ensemble-unique-nodes_ensemble-unique-nodes.png"/>
+
+<h6>Pod Elapsed Time by Size</h6>
+<br>
+
+<img width="100%" src="img/pod-elapsed-times-by-size_pod-elapsed-times-by-size.png"/>
+
+<h6>Pod Elapsed Time by Experiment</h6>
+<br>
+
+<img width="100%" src="img/pod-elapsed-times_pod-elapsed-times.png"/>
+<br>
+
+<br>
+
+
+</div>
+</div>
+<script type="module">
+
+import define from "./index.js";
+import {Runtime, Library, Inspector} from "./runtime.js";
+
+const runtime = new Runtime();
+const main = runtime.module(define, Inspector.into("#plot"));
+
+</script>
